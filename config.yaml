@@ -1,0 +1,50 @@
+studios:
+#
+#  - name: INS-STU1-PLYT             ; an internal string to refer to this studio
+#    description: Insanity Studio 1  ; a readable description of the studio
+#    ip:                             ; a list of IP addresses this studio may connect with
+#        - 10.32.0.20                ;   (we shouldn't simply trust its ident)
+#        - 134.219.88.20             ;
+#    controller: OAC::OCP            ; the type of controller it is (ex. OCP - Myriad)
+#    networks:                       ; a hash of outputs that are triggered when this studio is on air
+#                                    ;   (there is limited network support at this moment in time)
+#        insanity: 1                 ; network: output
+
+  - name: INS-STU1-PLYT
+    description: Insanity Studio 1
+    ip: 
+        - 10.32.0.20
+        - 134.219.88.20
+    type: OAC::OCP
+    networks:
+        insanity: 1
+
+  - name: INS-STU2-PLYT
+    description: Insanity Studio 2
+    ip:
+        - 10.32.0.116
+        - 134.219.88.116
+    type: OAC::OCP
+    networks:   
+        insanity: 2
+
+networks:
+#  - name: insanity-xtra             ; machine readable network identifier
+#    identity:
+#        "OAC::OCP": "InsanityXtra"  ; the identifier for this network in playout
+#    description: Insanity Xtra      ; machine readable 
+#    callsign: ~                     ; 
+#    control: force                  ; only allow "forced" control from playout
+#        (or) none                   ; don't allow any control changes
+#        (or) 
+
+  - name: insanity
+    description: Insanity Radio
+    callsign: Insanity Radio 103.2FM
+    control: force
+
+
+settings:
+    handover_tail: 5                 # the "tail", if supported by hardware outs. set to 0 to disable
+
+

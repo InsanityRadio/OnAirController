@@ -1,0 +1,17 @@
+module OAC
+
+	autoload :Error, 'oac/error'
+
+	autoload :Client, 'oac/client'
+	autoload :Config, 'oac/config'
+	autoload :Controller, 'oac/controller'
+	autoload :Events, 'oac/events'
+	autoload :Exceptions, 'oac/exceptions'
+	autoload :Helper, 'oac/helper'
+	autoload :Network, 'oac/network'
+	autoload :Server, 'oac/server'
+	autoload :ServerFactory, 'oac/server_factory'
+	autoload :OCP, 'oac/ocp'
+
+
+end
