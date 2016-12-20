@@ -22,6 +22,7 @@ studios:
   - name: INS-STU2-PLYT
     description: Insanity Studio 2
     ip:
+        - 127.0.0.1
         - 10.32.0.116
         - 134.219.88.116
     type: OAC::OCP

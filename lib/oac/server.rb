@@ -53,7 +53,6 @@ module OAC
 		def on_remove_client socket
 			c, @clients = @clients.partition { | c | c.socket == socket }
 			c.map(&:on_disconnect)
-			p c
 
 			@changed.call
 		end

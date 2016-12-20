@@ -30,7 +30,7 @@ module OAC
 		end
 
 		def eof?
-			"\n"
+			["\n"]
 		end
 
 		def on_data
@@ -44,9 +44,11 @@ module OAC
 			end
 
 			responses = []
-			if @buffer.include? eof?
-				data = @buffer.slice!(0, @buffer.rindex(eof?) + 1).split(eof?, -1)[0..-2]
-				data.each { | d | responses << on_message(d) }
+			eof?.each do | eof |
+				if @buffer.include? eof
+					data = @buffer.slice!(0, @buffer.rindex(eof) + 1).split(eof, -1)[0..-2]
+					data.each { | d | responses << on_message(d) }
+				end
 			end
 
 			responses
@@ -54,7 +56,7 @@ module OAC
 		end
 
 		def send message
-			@socket << message + eof? rescue nil
+			@socket << message + eof?.first rescue nil
 		end
 
 		def disconnect

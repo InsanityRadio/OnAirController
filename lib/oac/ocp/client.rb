@@ -6,7 +6,7 @@ module OAC; module OCP
 		end
 
 		def eof?
-			"\x0d"
+			["\x0d", "\n"]
 		end
 
 		def ident

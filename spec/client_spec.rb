@@ -11,11 +11,10 @@ class ClientTest < OAC::Client
 	end
 
 	def eof?
-		"\n"
+		["\n"]
 	end
 
 	def on_message message
-		puts "MESSAGE OK"
 		@packets = 0 if !defined? @packets
 		@packets += 1
 		@last_packet = message
