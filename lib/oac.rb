@@ -5,7 +5,7 @@ module OAC
 	autoload :Client, 'oac/client'
 	autoload :Config, 'oac/config'
 	autoload :Controller, 'oac/controller'
-	autoload :Events, 'oac/events'
+	autoload :Event, 'oac/event'
 	autoload :Exceptions, 'oac/exceptions'
 	autoload :Helper, 'oac/helper'
 	autoload :Network, 'oac/network'

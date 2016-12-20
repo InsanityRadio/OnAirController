@@ -39,7 +39,13 @@ module OAC
 		end
 
 		def select_changed
-			changed = select(@sockets, nil, nil, 1)
+			begin
+				changed = select(@sockets, nil, nil, 1)
+			rescue IOError
+				# Dirty socket closure.
+				changed
+				retry
+			end
 		end
 
 		def pump
@@ -52,13 +58,24 @@ module OAC
 				if @server_sockets.include? socket
 					server = @servers.select { |s| s.socket == socket }[0]
 					client = server.accept
+					@controller.register_client(client) if @controller
 					yield client if block_given?
+
+				elsif socket.eof?
+					client = @clients.select { |s| s.socket == socket }[0]
+					client.server.on_remove_client socket
 				else
 					client = @clients.select { |s| s.socket == socket }[0]
 					server = client.server
 					client.on_data
 				end
 			end
+
+		end
+
+		def run!
+
+			$threads << Thread.new { loop { pump } }
 
 		end
 

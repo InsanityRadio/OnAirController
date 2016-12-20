@@ -1,6 +1,6 @@
 module OAC
 	class Client
-		class Request < OAC::Event
+		class Disconnect < OAC::Event
 		end
 	end
 end

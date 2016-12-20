@@ -43,7 +43,7 @@ describe OAC::Config do
 		context "when the key does not exist, and there is no default" do 
 			key = "stupid.key"
 			it "returns nil" do
-				expect( @config.get(key) ).to be(nil)
+				expect( @config.get(key) ).to eq(nil)
 			end
 		end
 
@@ -51,14 +51,14 @@ describe OAC::Config do
 			key = "stupid.key"
 			default = rand()
 			it "returns that default" do
-				expect( @config.get(key, default) ).to be(default)
+				expect( @config.get(key, default) ).to eq(default)
 			end
 		end
 
 		context "when the key exists, it returns the value" do 
 			key = "settings.handover_tail"
 			it "returns the value" do
-				expect( @config.get(key) ).to be(5)
+				expect( @config.get(key) ).to eq(5)
 			end
 		end
 
@@ -67,7 +67,7 @@ describe OAC::Config do
 			it "returns the array" do
 				expect( @config.get(key) ).to be_a(Array)
 				expect( @config.get(key)[0] ).to be_a(Hash)
-				expect( @config.get(key)[0]["name"] ).to be("radio1")
+				expect( @config.get(key)[0]["name"] ).to eq("radio1")
 			end
 		end
 

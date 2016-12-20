@@ -5,9 +5,7 @@ module OAC
 
 		attr_reader :clients, :socket, :controller
 
-		CLIENT = OAC::Client
-		BLOCK_SIZE = 4096
-		EOF = "\n"
+		@@CLIENT = OAC::Client
 
 		def initialize controller = nil
 			@socket = nil
@@ -27,6 +25,9 @@ module OAC
 		end
 
 		def sockets
+			c, @clients = @clients.partition { | c | c.socket == socket }
+			c.map(&:on_disconnect)
+
 			@clients.map { | c | c.socket } + [@socket]
 		end
 
@@ -44,15 +45,17 @@ module OAC
 		end
 
 		def on_new_client socket
-			@clients << (client = CLIENT.new(socket, self))
+			@clients << (client = @@CLIENT.new(socket, self))
 			@changed.call
 			client
 		end
 
 		def on_remove_client socket
-			client = @clients.delete { | c | c.socket == socket }
+			c, @clients = @clients.partition { | c | c.socket == socket }
+			c.map(&:on_disconnect)
+			p c
+
 			@changed.call
-			client
 		end
 
 	end

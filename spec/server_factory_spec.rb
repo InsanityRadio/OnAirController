@@ -9,6 +9,9 @@ class FakeSocket
 		@closed = false
 	end
 
+	def << message
+	end
+
 	def to_str
 		"<FakeSocket:#{self.hash} #{@label}>"
 	end
@@ -23,7 +26,7 @@ end
 
 class ServerTestWithAccept < OAC::Server
 
-	attr_reader :socket, :queued
+	attr_reader :socket, :queued, :network
 
 	def listen port, host = nil
 		@port = port

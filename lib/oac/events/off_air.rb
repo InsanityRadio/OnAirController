@@ -1,6 +1,6 @@
 module OAC
-	module Events
-		class OffAir < OAC::Events::Event
+	class Event
+		class OffAir < OAC::Event::ControlEvent
 
 		end
 	end
