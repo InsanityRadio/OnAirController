@@ -7,7 +7,7 @@ module OAC
 
 		def initialize params = {}
 
-			@name = params["name"]
+			@id = @name = params["name"]
 			@description = params["description"]
 			@callsign = params["callsign"]
 			@take_control_type = params["take_control"].to_sym

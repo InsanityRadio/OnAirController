@@ -58,7 +58,14 @@ module OAC; module OCP
 
 		private
 		def on_take_control *args
+			self << "NET_CONTROL_START"
 			self << "GET_INFORMATION"
+			super *args
+		end
+
+		private
+		def on_release_control *args
+			self << "NET_CONTROL_ENDRT"
 			super *args
 		end
 
