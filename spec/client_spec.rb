@@ -3,28 +3,48 @@ require 'securerandom'
 require 'oac'
 
 class ClientTest < OAC::Client 
+
 	attr_reader :packets, :last_packet
+
+	def initialize socket, server
+		super
+	end
+
+	def eof?
+		"\n"
+	end
+
 	def on_message message
+		puts "MESSAGE OK"
 		@packets = 0 if !defined? @packets
 		@packets += 1
 		@last_packet = message
 
 		"MESSAGE_OK"
 	end
+
+	def on_open
+		"OPEN_OK"
+	end
+
 end
 
 class ServerTest < OAC::Server
 
-	CLIENT = ClientTest
 	def on_new_client socket
 		raise "ServerTest can only have one client" if @clients.length > 0
-		@clients << (client = CLIENT.new(socket, self))
+		@clients << (client = client?.new(socket, self))
 		@changed.call
 		client
 	end
 	def get_client
 		return @clients[0]
 	end
+
+	def client?
+		ClientTest
+	end
+
 end
 
 describe OAC::Client do

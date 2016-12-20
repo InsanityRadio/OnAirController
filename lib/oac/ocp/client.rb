@@ -5,6 +5,10 @@ module OAC; module OCP
 			super
 		end
 
+		def eof?
+			"\x0d"
+		end
+
 		def ident
 			'+Connected AppName="MyriadOCP4" Version="4.0.69"'
 		end

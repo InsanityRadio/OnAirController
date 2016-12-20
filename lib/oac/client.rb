@@ -14,7 +14,6 @@ module OAC
 		attr_accessor :id
 
 		@@BLOCK_SIZE = 4096
-		@@EOF = "\x0d"
 
 		def initialize socket, server
 
@@ -30,6 +29,10 @@ module OAC
 
 		end
 
+		def eof?
+			"\n"
+		end
+
 		def on_data
 
 			begin
@@ -41,8 +44,8 @@ module OAC
 			end
 
 			responses = []
-			if @buffer.include? @@EOF
-				data = @buffer.slice!(0, @buffer.rindex(@@EOF) + 1).split(@@EOF, -1)[0..-2]
+			if @buffer.include? eof?
+				data = @buffer.slice!(0, @buffer.rindex(eof?) + 1).split(eof?, -1)[0..-2]
 				data.each { | d | responses << on_message(d) }
 			end
 
@@ -51,7 +54,7 @@ module OAC
 		end
 
 		def send message
-			@socket << message + @@EOF rescue nil
+			@socket << message + eof? rescue nil
 		end
 
 		def disconnect
