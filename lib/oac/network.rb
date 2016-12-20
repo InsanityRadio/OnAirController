@@ -25,7 +25,7 @@ module OAC
 				when :force
 					return @on_air == nil || force
 
-				when :request
+				when :always
 					return true
 
 				else

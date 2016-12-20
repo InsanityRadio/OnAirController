@@ -43,13 +43,13 @@ networks:
 #    callsign: ~                     ; 
 #    control: force                  ; only allow "forced" control from playout
 #        (or) none                   ; don't allow any control changes
-#        (or) 
+#        (or) always                 ; let playout make a decision
 
   - name: insanity
     description: Insanity Radio
     callsign: Insanity Radio 103.2FM
-    take_control: force
-    release_control: none
+    take_control: always
+    release_control: always
 
 
 settings:
