@@ -10,7 +10,7 @@ require 'pp'
 controller.add_listener do | event, args, caller |
 
 	puts "#{event.class.to_s}, #{caller}"
-	puts args.to_s
+	puts args.inspect
 
 end
 
