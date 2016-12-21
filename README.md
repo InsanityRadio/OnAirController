@@ -1,11 +1,12 @@
-# OnAirController
+# <img src="https://raw.githubusercontent.com/InsanityRadio/OnAirController/master/doc/headphones_dark.png" align="left" height=48 />&nbsp; OnAirController
+
 A stupidly simple on-air controller written in Ruby.
 
 This controller theoretically supports multiple playout systems (if you can code it!). There is currently support for Myriad, as it's the only one we have access to. 
 
 OnAirController can now receive now playing metadata. 
 
-###?What it doesn't do
+### What it doesn't do
 
 Splits. That's far far out of the scope here, sadly. Hardware control isn't built in yet, either. 
 
@@ -24,3 +25,5 @@ One goal of this software is to allow the "ON AIR" status that's displayed on th
 Myriad won't keep a connection to the OAC open unless it is trying to go on air. Myriad's TCP/IP protocol can work around this, but this hasn't been implemented yet.
 
 Be wary if you're using Raspberry Pi GPIO pins here - you should definitely use opto-isolated circuitry, especially if (like us, there are some huge lighting transformers downstairs) your ground is noisy. Make sure that you (somehow) persist GPOs in case the software crashes, as this is very likely in the current state. 
+
+
