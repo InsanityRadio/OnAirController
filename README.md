@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/InsanityRadio/OnAirController/master/doc/headphones_dark.png" align="left" height=48 /> OnAirController
+# <img src="https://raw.githubusercontent.com/InsanityRadio/OnAirController/master/doc/headphones_dark.png" align="left" height=48 />OnAirController
 
 A stupidly simple on-air controller written in Ruby.
 
