@@ -3,8 +3,8 @@ module OAC
 
 		attr_accessor :current_item, :next_item
 
-		def []
-			return @current_item
+		def [] a
+			return @current_item[a]
 		end
 
 	end
