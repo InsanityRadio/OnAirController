@@ -55,7 +55,7 @@ module OAC; module OCP
 					return if !@networks.length
 
 					update = Metadata.parse message
-					return if @current_reference == update.current_reference[:reference]
+					return if !@metadata.nil? and @metadata[:reference] == update.current_item[:reference]
 
 					song_change update
 

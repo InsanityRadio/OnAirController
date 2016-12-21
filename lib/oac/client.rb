@@ -18,7 +18,6 @@ module OAC
 		def initialize socket, server
 
 			@id = nil
-			@current_reference = nil
 			@metadata = nil
 			@socket = socket
 			@server = server
