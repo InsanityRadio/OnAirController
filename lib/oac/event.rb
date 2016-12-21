@@ -6,6 +6,8 @@ module OAC
 		autoload :OnAir, 'oac/events/on_air'
 		autoload :OffAir, 'oac/events/off_air'
 
+		autoload :SongChange, 'oac/events/song_change'
+
 		attr_accessor :args, :caller
 	end
 end
