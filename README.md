@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/InsanityRadio/OnAirController/master/doc/headphones_dark.png" align="left" height=48 />OnAirController
 
-A stupidly simple on-air controller written in Ruby.
+A stupidly simple on-air controller (and coincidentally a metadata source) written in Ruby.
 
 This controller theoretically supports multiple playout systems (if you can code it!). There is currently support for Myriad, as it's the only one we have access to. 
 
