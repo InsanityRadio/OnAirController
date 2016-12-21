@@ -31,10 +31,8 @@ module OAC
 			networks = [networks] if networks.is_a? OAC::Network
 			networks.select do | network |
 				if !network.should_take_control(client, force)
-					puts "Refusing control from #{client.id} for #{network.id} (#{force})"
 					next false 
 				end
-				puts "Passing control to #{client.id} for #{network.id} (#{force})"
 				network.take_control client
 				true
 			end
