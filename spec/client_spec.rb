@@ -67,6 +67,12 @@ describe OAC::Client do
 		end
 	end
 
+	describe ".ip" do
+		it "returns my IP" do
+			expect(@client.ip).to eq("127.0.0.1")
+		end
+	end
+
 	describe ".on_data" do 
 		context "when there is no data" do 
 			it "does nothing" do

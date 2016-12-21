@@ -36,7 +36,7 @@ module OAC
 		end
 
 		def ip
-			Socket.unpack_sockaddr_in(client.socket.getpeername)[1]
+			Socket.unpack_sockaddr_in(@socket.getpeername)[1]
 		end
 
 		def on_data
