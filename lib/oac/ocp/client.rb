@@ -23,7 +23,7 @@ module OAC; module OCP
 
 		def on_message message
 
-			query = message.split(" ")
+			query = message.split(" ", 2)
 
 			case query[0]
 				when "NET_CONTROL?"
@@ -41,16 +41,23 @@ module OAC; module OCP
 
 				# NET_CONTROL_LOGON MV4_[PC-NAME] [force],[PC-ID] [PC-NAME/MYRIAD NAME]
 				when "NET_CONTROL_LOGON"
-					@myriad_id = message[1]
-					force = message[2].split(",") == "2"
+					q = query[1].split(" ")
+					@myriad_id = query[0]
+					#force = query[1].split(",") == "2"
+					force = true
 					take_control @server.network, force
 
 				when "NET_CONTROL_LOGOFF"
 					release_control @networks, false
 					
 				when "SET"
-					# metadata update
-					puts "<<metdata update>>"
+					# metadata update - we don't care if we're not on air.
+					return if !@networks.length
+
+					update = Metadata.parse message
+					return if @current_reference == update.current_reference[:reference]
+
+					song_change update
 
 			end
 

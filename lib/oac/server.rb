@@ -25,8 +25,8 @@ module OAC
 		end
 
 		def sockets
-			c, @clients = @clients.partition { | c | c.socket == socket }
-			c.map(&:on_disconnect)
+			d, @clients = @clients.partition { | c | c.socket == socket }
+			d.map(&:on_disconnect)
 
 			@clients.map { | c | c.socket } + [@socket]
 		end
@@ -51,8 +51,8 @@ module OAC
 		end
 
 		def on_remove_client socket
-			c, @clients = @clients.partition { | c | c.socket == socket }
-			c.map(&:on_disconnect)
+			d, @clients = @clients.partition { | c | c.socket == socket }
+			d.map(&:on_disconnect)
 
 			@changed.call
 		end

@@ -4,6 +4,7 @@ module OAC
 		include OAC::Helper::Dispatch
 
 		attr_reader :id, :name, :description, :callsign, :on_air
+		attr_reader :take_control_type, :release_control_type
 
 		def initialize params = {}
 

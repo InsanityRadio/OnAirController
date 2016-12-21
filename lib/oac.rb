@@ -8,6 +8,7 @@ module OAC
 	autoload :Event, 'oac/event'
 	autoload :Exceptions, 'oac/exceptions'
 	autoload :Helper, 'oac/helper'
+	autoload :Metadata, 'oac/metadata'
 	autoload :Network, 'oac/network'
 	autoload :Server, 'oac/server'
 	autoload :ServerFactory, 'oac/server_factory'

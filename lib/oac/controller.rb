@@ -3,6 +3,8 @@ module OAC
 
 		include OAC::Helper::Dispatch
 
+		attr_reader :networks, :clients, :factory
+
 		def initialize config
 
 			@config = config
@@ -12,38 +14,16 @@ module OAC
 
 			@ips = {}
 
-			@config.get("networks").each do | settings |
-
-				network = OAC::Network.new(settings)
-				id = settings["name"]
-				@networks[id] = network
-				listen_to network
-
-			end
-
-			@config.get("studios").each do | studio |
-				
-				id = studio["name"]
-				@clients[id] = OAC::Client::Disconnected
-
-				[studio["ip"]].flatten.each do | ip |
-					raise OAC::Error::ConfigError, "Playout systems sharing IP" if !@ips[id].nil?
-					@ips[ip] = id
-				end
-
-			end
-
-			@config.get("controllers").each do | controller |
-
-				type = Object.const_get(controller["type"])::Server
-				server = @factory.create_server(type, controller["port"], controller["host"])
-
-				# Some interfaces only support one network each
-				server.network = @networks[controller["network"]] if controller["network"]
-
-			end
+			load_networks
+			load_studios
+			load_controllers
 
 		end
+
+		def exit
+			@factory.close
+		end
+
 
 		# Returns a list of networks we've taken control of
 		def on_take_control_request event, networks = [], force, client
@@ -92,9 +72,9 @@ module OAC
 
 		def register_client client
 
-			port, ip = Socket.unpack_sockaddr_in(client.socket.getpeername)
+			ip = client.ip
 
-			id = id_to_ip ip
+			id = ip_to_id ip
 			return client.disconnect if id == nil
 			client.id = id
 
@@ -118,9 +98,54 @@ module OAC
 		end
 
 		private
+
+		def load_networks
+			raise OAC::Error::ConfigError unless @config.get("networks").is_a? Array
+
+			@config.get("networks").each do | settings |
+
+				network = OAC::Network.new(settings)
+				id = settings["name"]
+				@networks[id] = network
+				listen_to network
+
+			end
+		end
+
+		def load_studios
+			raise OAC::Error::ConfigError unless @config.get("studios").is_a? Array
+
+			@config.get("studios").each do | studio |
+				
+				id = studio["name"]
+				@clients[id] = OAC::Client::Disconnected
+
+				[studio["ip"]].flatten.each do | ip |
+					raise OAC::Error::ConfigError, "Playout systems sharing IP" if !@ips[id].nil?
+					@ips[ip] = id
+				end
+
+			end
+		end
+
+		def load_controllers
+			raise OAC::Error::ConfigError unless @config.get("controllers").is_a? Array
+
+			@config.get("controllers").each do | controller |
+
+				type = Object.const_get(controller["type"])::Server
+				server = @factory.create_server(type, controller["port"], controller["host"])
+
+				# Some interfaces only support one network each
+				server.network = @networks[controller["network"]] if controller["network"]
+
+			end
+		end
+
 		def listen_to object
 
-			raise "Object must use OAC::Helper::Dispatch" unless object.class.method_defined? "add_listener"
+			#raise "Object must use OAC::Helper::Dispatch" \
+			#	unless object.class.included_modules.include? OAC::Helper::Dispatch
 
 			object.add_listener OAC::Client::Disconnect, &method(:on_disconnect)
 			object.add_listener OAC::Client::TakeControlRequest, &method(:on_take_control_request)
@@ -130,7 +155,7 @@ module OAC
 
 		end
 
-		def id_to_ip ip
+		def ip_to_id ip
 
 			# We only support one IP per playout system. Splits are out of our scope currently
 			@ips[ip]

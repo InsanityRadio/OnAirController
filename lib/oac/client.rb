@@ -18,6 +18,8 @@ module OAC
 		def initialize socket, server
 
 			@id = nil
+			@current_reference = nil
+			@metadata = nil
 			@socket = socket
 			@server = server
 			@buffer = ""
@@ -31,6 +33,10 @@ module OAC
 
 		def eof?
 			["\n"]
+		end
+
+		def ip
+			Socket.unpack_sockaddr_in(client.socket.getpeername)[1]
 		end
 
 		def on_data
@@ -89,6 +95,12 @@ module OAC
 		# network = nil  ==>  release control from all networks
 		def release_control networks, force = false
 			dispatch OAC::Client::ReleaseControlRequest.new, networks, force, self
+		end
+
+		def song_change metadata
+			@metadata = metadata
+			@current_reference = metadata[:current_reference]
+			dispatch OAC::Event::SongChange.new, metadata, self
 		end
 
 
