@@ -9,8 +9,8 @@ require 'pp'
 
 controller.add_listener do | event, args, caller |
 
-	#puts "#{event.class.to_s}, #{caller}"
-	#pp args
+	puts "#{event.class.to_s}, #{caller}"
+	puts args.to_s
 
 end
 

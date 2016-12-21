@@ -61,6 +61,10 @@ module OAC
 			dispatch *args
 		end
 
+		def on_meta_event *args
+			dispatch *args
+		end
+
 		def on_disconnect event, client
 			@clients[client.id] = OAC::Client::Disconnected
 		end
@@ -152,6 +156,7 @@ module OAC
 			object.add_listener OAC::Client::ReleaseControlRequest, &method(:on_release_control_request)
 
 			object.add_listener OAC::Event::ControlEvent, &method(:on_control_event)
+			object.add_listener OAC::Event::MetaEvent, &method(:on_meta_event)
 
 		end
 

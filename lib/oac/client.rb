@@ -98,7 +98,7 @@ module OAC
 
 		def song_change metadata
 			@metadata = metadata
-			@current_reference = metadata[:current_reference]
+			@current_reference = metadata.[:current_reference]
 			dispatch OAC::Event::SongChange.new, metadata, self
 		end
 
