@@ -76,6 +76,17 @@ describe OAC::Network do
 			expect(network.on_air).to eq(c)
 			expect(called).to eq(true)
 		end
+		it "should call the switch method" do
+			c = Fake::Client.new
+			called = false
+
+			network = OAC::Network.new({ "take_control" => "always", "release_control" => "none", "switch" => [{ "type" => "OAC::Switch::DummySwitch" }]})
+			network.add_listener OAC::Event::OnAir, & proc { called = true}
+			network.take_control c
+
+			expect(network.on_air).to eq(c)
+			expect(called).to eq(true)
+		end
 	end
 
 	describe ".release_control" do
@@ -102,5 +113,6 @@ describe OAC::Network do
 			end
 		end
 	end
+
 
 end

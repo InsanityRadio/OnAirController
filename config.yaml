@@ -50,6 +50,17 @@ networks:
     callsign: Insanity Radio 103.2FM
     take_control: always
     release_control: always
+    switch:
+      - type: "OAC::Switch::OnAirNode"
+      #- type: "OAC::Switch::DummySwitch"
+        host: 127.0.0.1
+        port: 9999
+        secret_key: todo
+        inputs:
+            0: ~
+            1: INS-STU1-PLYT
+            2: INS-STU2-PLYT
+            3: ~
 
 
 settings:

@@ -14,6 +14,14 @@ module OAC
 			@take_control_type = params["take_control"].to_sym
 			@release_control_type = params["release_control"].to_sym
 
+			@switches = []
+
+			if params["switch"]
+				params["switch"].each do | switch |
+					@switches << Object.const_get(switch["type"]).new(switch, self)
+				end
+			end
+
 			@on_air = nil
 
 		end

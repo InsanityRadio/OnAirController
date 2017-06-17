@@ -14,5 +14,7 @@ module OAC
 	autoload :ServerFactory, 'oac/server_factory'
 	autoload :OCP, 'oac/ocp'
 
+	autoload :Switch, 'oac/switch'
+
 
 end
