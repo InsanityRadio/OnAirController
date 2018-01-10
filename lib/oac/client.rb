@@ -11,7 +11,7 @@ module OAC
 		include OAC::Helper::Dispatch
 
 		attr_reader :networks, :socket, :server, :controller
-		attr_accessor :id
+		attr_accessor :id, :studio
 
 		@@BLOCK_SIZE = 4096
 
@@ -25,6 +25,8 @@ module OAC
 			@controller = @server.controller
 			@networks = []
 
+			@studio = nil
+
 			@controller.add_listener OAC::Event::OnAir, &method(:on_take_control) if @controller
 			@controller.add_listener OAC::Event::OffAir, &method(:on_release_control) if @controller
 
@@ -32,6 +34,10 @@ module OAC
 
 		def eof?
 			["\n"]
+		end
+
+		def config
+			@studio.config
 		end
 
 		def ip
@@ -49,11 +55,18 @@ module OAC
 			end
 
 			responses = []
-			eof?.each do | eof |
-				if @buffer.include? eof
-					data = @buffer.slice!(0, @buffer.rindex(eof) + 1).split(eof, -1)[0..-2]
-					data.each { | d | responses << on_message(d) }
+
+			begin
+				eof?.each do | eof |
+					if @buffer.include? eof
+						data = @buffer.slice!(0, @buffer.rindex(eof) + 1).split(eof, -1)[0..-2]
+						data.each { | d | responses << on_message(d) }
+					end
 				end
+			rescue
+				puts "There was an error handling a packet from #{self}"
+				p $!
+				p $!.backtrace
 			end
 
 			responses
@@ -83,34 +96,44 @@ module OAC
 
 		def on_disconnect
 			@socket.close rescue nil
-			release_control nil, true
+
+			@studio.clients.delete self  if @studio
+
 			dispatch OAC::Client::Disconnect.new, self
 		end
 
 		def take_control networks, force = false
+			raise "NoStudio" if !@studio
+			@studio.clients << self 
 			dispatch OAC::Client::TakeControlRequest.new, networks, force, self
 		end
 
 		# network = nil  ==>  release control from all networks
 		def release_control networks, force = false
+			raise "NoStudio" if !@studio
+			@studio.clients.delete self 
 			dispatch OAC::Client::ReleaseControlRequest.new, networks, force, self
 		end
 
 		def song_change metadata
 			@metadata = metadata
 			@current_reference = metadata[:current_reference]
-			dispatch OAC::Event::SongChange.new, metadata, self
+			dispatch OAC::Event::SongChange.new, metadata, @studio
 		end
 
 
 		private
-		def on_take_control event, networks, caller
-			@networks |= networks
+		def on_take_control event, networks, caller, last_studio
+
+			#@studio.clients << self
+
 		end
 
 		private
-		def on_release_control event, networks, caller
-			@networks -= networks
+		def on_release_control event, networks, caller, studio
+
+			#@studio.clients.delete self
+		
 		end
 		
 	end

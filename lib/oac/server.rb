@@ -5,7 +5,7 @@ module OAC
 
 		attr_reader :clients, :socket, :controller
 
-		@@CLIENT = OAC::Client
+		CLIENT = OAC::Client
 
 		def initialize controller = nil
 			@socket = nil
@@ -45,7 +45,7 @@ module OAC
 		end
 
 		def on_new_client socket
-			@clients << (client = @@CLIENT.new(socket, self))
+			@clients << (client = self.class::CLIENT.new(socket, self))
 			@changed.call
 			client
 		end

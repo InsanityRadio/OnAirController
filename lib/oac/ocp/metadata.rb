@@ -1,5 +1,6 @@
 require 'csv'
 require 'rexml/document'
+require 'time'
 
 module OAC; module OCP
 	class Metadata < OAC::Metadata
@@ -42,15 +43,17 @@ module OAC; module OCP
 
 		end
 
-		# 
 		def self.parse_log logs
 
 			{
 				:reference => logs["Ref"],
-				:playout_id => (logs["ExtSchRef"] or "C#{logs["HDRef"]}"),
+				:playout_id => logs["ExtSchRef"],
 				:cart_id => logs["HDRef"],
 				:title => logs["ITitle"],
-				:artist => logs["AName1"] }
+				:artist => logs["AName1"],
+				:start_time => Time.parse(logs['EstStDtTm']),
+				:log_hour => Time.strptime(logs['SchHour'] + '0000', '%Y%M%d%H%M%S')
+			}
 
 		end
 

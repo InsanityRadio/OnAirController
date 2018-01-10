@@ -15,6 +15,9 @@ module OAC
 	autoload :OCP, 'oac/ocp'
 
 	autoload :Switch, 'oac/switch'
+	autoload :TCP, 'oac/tcp'
+
+	autoload :Studio, 'oac/studio'
 
 
 end

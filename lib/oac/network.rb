@@ -43,6 +43,10 @@ module OAC
 		end
 
 		def should_release_control client, force = false
+
+			# Don't allow just anyone to send a release control request
+			return false if @on_air != client
+
 			case @release_control_type
 				when :none
 					return force
@@ -51,23 +55,48 @@ module OAC
 					return true
 
 				else
-					raise OAC::Error::ConfigError, "Unrecognised control type #{@crelease_ontrol_type}"
+					raise OAC::Error::ConfigError, "Unrecognised control type #{@release_control_type}"
 			end
 		end
 
 		def take_control client
-			@on_air = client
-			dispatch OAC::Event::OnAir.new, [self], client
+			last_studio = @on_air
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
+			@on_air = studio
+
+			unless @switching
+				dispatch OAC::Event::OnAir.new, [self], studio, last_studio
+			end
+
+			last_studio.on_release_control nil, [self], nil if last_studio != nil
+			studio.on_take_control nil, [self], nil, nil
+
 			true
 		end
 
 		# release_control technically takes the network off air. 
 		def release_control client
-			puts "releasing"
-			return false unless @on_air == client
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
+
+			return false unless @on_air == studio
+
+			puts "Releasing network control - off air? "
+			last_studio = @on_air
 			@on_air = nil 
-			dispatch OAC::Event::OffAir.new, [self], client
+
+			dispatch OAC::Event::OffAir.new, [self], studio
+
 			true
+		end
+
+		def start_switch
+			@switching = true
+		end
+
+		def end_switch
+			@switching = false
 		end
 
 	end

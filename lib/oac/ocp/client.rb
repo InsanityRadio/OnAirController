@@ -6,8 +6,8 @@ module OAC; module OCP
 		end
 
 		def eof?
-			#["\x0d", "\n"]
-			["\n"]
+			["\x0d", "\n"]
+			#["\n"]
 		end
 
 		def ident
@@ -45,8 +45,16 @@ module OAC; module OCP
 					q = query[1].split(" ")
 					@myriad_id = query[0]
 					#force = query[1].split(",") == "2"
-					force = true
+					force = false
+
+					@studio.clients << self
+
 					take_control @server.network, force
+
+					# We're already on air!
+					if @server.network.on_air == @studio
+						send_on_air_response
+					end
 
 				when "NET_CONTROL_LOGOFF"
 					release_control @networks, false
@@ -64,10 +72,14 @@ module OAC; module OCP
 
 		end
 
-		private
-		def on_take_control *args
+		def send_on_air_response
 			self << "NET_CONTROL_START"
 			self << "GET_INFORMATION"
+		end
+
+		private
+		def on_take_control *args
+			send_on_air_response
 			super *args
 		end
 

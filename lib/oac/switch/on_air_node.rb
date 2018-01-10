@@ -11,7 +11,7 @@ module OAC
 
 			end
 
-			def switch_control client
+			def switch_control client, previous 
 
 				puts "hello"
 				id = @config['inputs'].key client.id

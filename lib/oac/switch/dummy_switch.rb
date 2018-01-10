@@ -6,13 +6,27 @@ module OAC
 
 				@config = config
 				@network = network
-				@network.add_listener(OAC::Event::ControlEvent) { | event, networks, client | switch_control client }
+				@network.add_listener(OAC::Event::ControlEvent) { | event, networks, studio, previous | switch_control_safe studio, previous }
 
 			end
 
-			def switch_control client
+			def switch_control studio, previous
 
-				p "SWITCHING CONTROL TO #{client.id}"
+				p "SWITCHING CONTROL TO #{studio.id} (FROM #{previous})"
+
+			end
+
+			def switch_control_safe studio, previous
+
+				begin
+					switch_control studio, previous
+				rescue
+					puts "!!!!!!!"
+					puts "FAILED TO SWITCH #{self}"
+					p $!
+					p $!.backtrace
+					puts "!!!!!!!"
+				end
 
 			end
 
