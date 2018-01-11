@@ -55,19 +55,25 @@ module OAC
 			changed = changed[0]
 
 			changed.each do | socket |
-				if @server_sockets.include? socket
-					server = @servers.select { |s| s.socket == socket }[0]
-					client = server.accept
-					@controller.register_client(client) if @controller
-					yield client if block_given?
+				begin
+					if @server_sockets.include? socket
+						server = @servers.select { |s| s.socket == socket }[0]
+						client = server.accept
+						@controller.register_client(client) if @controller
+						yield client if block_given?
 
-				elsif socket.eof?
-					client = @clients.select { |s| s.socket == socket }[0]
-					client.server.on_remove_client socket
-				else
-					client = @clients.select { |s| s.socket == socket }[0]
-					server = client.server
-					client.on_data
+					elsif socket.eof?
+						client = @clients.select { |s| s.socket == socket }[0]
+						client.server.on_remove_client socket
+					else
+						client = @clients.select { |s| s.socket == socket }[0]
+						server = client.server
+						client.on_data
+					end
+				rescue
+					puts "Socket error!"
+					socket.close rescue nil
+					p $!
 				end
 			end
 

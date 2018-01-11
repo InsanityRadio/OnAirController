@@ -12,9 +12,9 @@ controller.add_listener do | event, args, caller |
 	if event.is_a? OAC::Event::MetaEvent
 
 		# send it up
-		json = event.current_item.to_json
+		json = args.current_item.to_json
 
-		HTTParty.post("http://localhost:3000/api/v1/users", body: JSON.parse(json)).body
+		HTTParty.post("http://webapi.private/update.php", body: json, :headers => { 'Content-Type' => 'application/json' }).body
 
 	end
 
