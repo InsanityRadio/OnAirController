@@ -6,13 +6,15 @@ module OAC
 		attr_reader :id, :name, :description, :callsign, :acceptor, :on_air
 		attr_reader :take_control_type, :release_control_type
 
-		def initialize params = {}
+		def initialize params = {}, controller
 
 			@id = @name = params["name"]
 			@description = params["description"]
 			@callsign = params["callsign"]
 			@take_control_type = params["take_control"].to_sym
 			@release_control_type = params["release_control"].to_sym
+
+			@config = controller.config
 
 			@switches = []
 
@@ -22,8 +24,9 @@ module OAC
 				end
 			end
 
-			@acceptor = nil
-			@on_air = nil
+			#@acceptor = nil
+			#@on_air = nil
+			@acceptor = @on_air = controller.studios[@config.get_temp("network-#{@id}-last", params["default"])]
 
 		end
 
@@ -85,6 +88,8 @@ module OAC
 
 			last_studio.on_release_network nil, [self], nil if last_studio != nil
 			studio.on_execute_control nil, [self], nil, nil
+
+			@config.set_temp "network-#{@id}-last", studio.id
 
 		end
 

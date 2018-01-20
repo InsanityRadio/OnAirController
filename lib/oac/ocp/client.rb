@@ -33,20 +33,15 @@ module OAC; module OCP
 						if @server.network.on_air == @studio
 							puts "sending available"
 							self << "NET_CONTROL_AVAILABLE"
-							#self << "NET_CONTROL MV4_" + @myriad_id
 						else
-							# Make Myriad happy because it thinks it's in control ;-)
-							self << "NET_CONTROL MV4_00000" # + @server.network.on_air.id
+							self << "NET_CONTROL MV4_00000" 
 						end
-					else
-						#self << "NET_CONTROL_AVAILABLE"
 					end
 
-				# NET_CONTROL_LOGON MV4_[PC-NAME] [force],[PC-ID] [PC-NAME/MYRIAD NAME]
 				when "NET_CONTROL_LOGON"
 					q = query[1].split(" ")
 					@myriad_id = query[0]
-					#force = query[1].split(",") == "2"
+
 					force = false
 
 					@studio.clients << self
@@ -54,13 +49,12 @@ module OAC; module OCP
 					# We're already on air!
 					if @server.network.on_air == @studio
 						send_on_air_response
-					else
-						#take_control @server.network, force
 					end
 
 				when "NET_CONTROL_LOGOFF"
+					# !!! BAD IDEA !!!
 					#release_control @networks, false
-					
+
 				when "SET"
 					# metadata update - we don't care if we're not on air.
 					return if !@networks.length

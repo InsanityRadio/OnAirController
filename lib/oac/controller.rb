@@ -3,7 +3,7 @@ module OAC
 
 		include OAC::Helper::Dispatch
 
-		attr_reader :networks, :clients, :factory, :studios
+		attr_reader :networks, :clients, :factory, :studios, :config
 
 		def initialize config
 
@@ -119,7 +119,7 @@ module OAC
 
 			@config.get("networks").each do | settings |
 
-				network = OAC::Network.new(settings)
+				network = OAC::Network.new(settings, self)
 				id = settings["name"]
 				@networks[id] = network
 				listen_to network
