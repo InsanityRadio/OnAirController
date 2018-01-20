@@ -5,8 +5,15 @@ require 'oac'
 
 module Fake
 	class Client < OAC::Client
-		def initialize
+		attr_accessor :studio
+		def initialize studio = Fake::Studio.new
 			@id = "FakeClient"
+			@studio = studio
+		end
+	end
+	class Studio < OAC::Studio
+		def initialize
+			@id = "FakeStudio"
 		end
 	end
 end
@@ -39,7 +46,8 @@ describe OAC::Network do
 		context "when called" do
 			it "returns an appropriate value" do 
 
-				c = Fake::Client.new
+				s = Fake::Studio.new 
+				c = Fake::Client.new(s)
 				networks = []
 				networks << OAC::Network.new({ "take_control" => "always", "release_control" => "always" })
 				networks << OAC::Network.new({ "take_control" => "none", "release_control" => "always" })
@@ -66,7 +74,7 @@ describe OAC::Network do
 
 	describe ".take_control" do
 		it "should dispatch an event" do
-			c = Fake::Client.new
+			c = Fake::Client.new Fake::Studio.new
 			called = false
 
 			network = OAC::Network.new({ "take_control" => "always", "release_control" => "none"})
@@ -77,7 +85,7 @@ describe OAC::Network do
 			expect(called).to eq(true)
 		end
 		it "should call the switch method" do
-			c = Fake::Client.new
+			c = Fake::Client.new Fake::Studio.new
 			called = false
 
 			network = OAC::Network.new({ "take_control" => "always", "release_control" => "none", "switch" => [{ "type" => "OAC::Switch::DummySwitch" }]})
@@ -92,13 +100,13 @@ describe OAC::Network do
 	describe ".release_control" do
 		context "when client isn't in control" do
 			it "does nothing" do
-				c = Fake::Client.new
+				c = Fake::Client.new Fake::Studio.new
 				network = OAC::Network.new({ "take_control" => "always", "release_control" => "none"})
 				expect(network.release_control c).to eq(false)
 			end
 		end
 		context "when client is in control" do
-			c = Fake::Client.new
+			c = Fake::Client.new Fake::Studio.new
 			network = OAC::Network.new({ "take_control" => "always", "release_control" => "none"})
 			network.take_control c
 

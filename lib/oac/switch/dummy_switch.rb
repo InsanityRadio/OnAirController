@@ -6,7 +6,7 @@ module OAC
 
 				@config = config
 				@network = network
-				@network.add_listener(OAC::Event::ControlEvent) { | event, networks, studio, previous | switch_control_safe studio, previous }
+				@network.add_listener(OAC::Event::ExecuteControl) { | event, networks, studio, previous | switch_control_safe studio, previous }
 
 			end
 

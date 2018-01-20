@@ -3,7 +3,7 @@ module OAC
 
 		include OAC::Helper::Dispatch
 
-		attr_reader :id, :name, :description, :callsign, :on_air
+		attr_reader :id, :name, :description, :callsign, :acceptor, :on_air
 		attr_reader :take_control_type, :release_control_type
 
 		def initialize params = {}
@@ -22,6 +22,7 @@ module OAC
 				end
 			end
 
+			@acceptor = nil
 			@on_air = nil
 
 		end
@@ -59,20 +60,32 @@ module OAC
 			end
 		end
 
-		def take_control client
-			last_studio = @on_air
+		# Take control of network
+		def take_control studio
 
-			studio = client.is_a?(OAC::Client) ? client.studio : client
-			@on_air = studio
+			old_acceptor = @acceptor
+			@acceptor = studio
 
-			unless @switching
-				dispatch OAC::Event::OnAir.new, [self], studio, last_studio
-			end
+			dispatch OAC::Event::TakeControl.new, [self], studio, old_acceptor
 
-			last_studio.on_release_control nil, [self], nil if last_studio != nil
+			old_acceptor.on_release_control nil, [self], nil if old_acceptor != nil
 			studio.on_take_control nil, [self], nil, nil
 
-			true
+		end
+
+		# Switch network 
+		def execute_control studio
+
+			return unless studio == @acceptor
+
+			last_studio = @on_air
+			@on_air = studio
+
+			dispatch OAC::Event::ExecuteControl.new, [self], studio, last_studio
+
+			last_studio.on_release_network nil, [self], nil if last_studio != nil
+			studio.on_execute_control nil, [self], nil, nil
+
 		end
 
 		# release_control technically takes the network off air. 

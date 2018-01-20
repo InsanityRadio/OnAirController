@@ -23,6 +23,13 @@ module OAC
 			network_names = networks.map { |n| n.id }
 			puts "#{@id} is taking control of #{network_names}"
 
+		end
+
+		def on_execute_control event, networks, caller, last_studio
+
+			network_names = networks.map { |n| n.id }
+			puts "#{@id} is executing control of #{network_names}"
+
 			@networks |= networks
 
 		end
@@ -31,6 +38,13 @@ module OAC
 
 			network_names = networks.map { |n| n.id }
 			puts "#{@id} is releasing control of #{network_names}"
+
+		end
+
+		def on_release_network event, networks, caller
+
+			network_names = networks.map { |n| n.id }
+			puts "#{@id} is releasing audio of #{network_names}"
 
 			@networks -= networks
 

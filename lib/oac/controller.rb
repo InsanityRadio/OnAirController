@@ -26,15 +26,29 @@ module OAC
 		end
 
 
-		# Returns a list of networks we've taken control of
-		def on_take_control_request event, networks = [], force, client_or_studio
+		def on_take_control_request event, networks = [], force, client
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
 
 			networks = [networks] if networks.is_a? OAC::Network
 			networks.select do | network |
-				if !network.should_take_control(client_or_studio, force)
+				if !network.should_take_control(studio, force)
 					next false 
 				end
-				network.take_control client_or_studio
+				network.take_control studio
+				true
+			end
+
+		end
+
+		def on_execute_control_request event, networks = [], client
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
+			networks = [networks] if networks.is_a? OAC::Network
+
+			networks.select do | network |
+				next false if network.acceptor != studio
+				network.execute_control studio
 				true
 			end
 
@@ -153,6 +167,7 @@ module OAC
 
 			object.add_listener OAC::Client::Disconnect, &method(:on_disconnect)
 			object.add_listener OAC::Client::TakeControlRequest, &method(:on_take_control_request)
+			object.add_listener OAC::Client::ExecuteControlRequest, &method(:on_execute_control_request)
 			object.add_listener OAC::Client::ReleaseControlRequest, &method(:on_release_control_request)
 
 			object.add_listener OAC::Event::ControlEvent, &method(:on_control_event)

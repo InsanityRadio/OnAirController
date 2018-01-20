@@ -6,6 +6,7 @@ module OAC
 
 		autoload :Request, 'oac/client/request'
 		autoload :TakeControlRequest, 'oac/client/take_control_request'
+		autoload :ExecuteControlRequest, 'oac/client/execute_control_request'
 		autoload :ReleaseControlRequest, 'oac/client/release_control_request'
 
 		include OAC::Helper::Dispatch
@@ -27,7 +28,8 @@ module OAC
 
 			@studio = nil
 
-			@controller.add_listener OAC::Event::OnAir, &method(:on_take_control) if @controller
+			@controller.add_listener OAC::Event::TakeControl, &method(:on_take_control) if @controller
+			@controller.add_listener OAC::Event::ExecuteControl, &method(:on_execute_control) if @controller
 			@controller.add_listener OAC::Event::OffAir, &method(:on_release_control) if @controller
 
 		end
@@ -60,7 +62,7 @@ module OAC
 				eof?.each do | eof |
 					if @buffer.include? eof
 						data = @buffer.slice!(0, @buffer.rindex(eof) + 1).split(eof, -1)[0..-2]
-						data.each { | d | responses << on_message(d) }
+						data.each { | d | responses << handle_message(d) }
 					end
 				end
 			rescue
@@ -74,6 +76,8 @@ module OAC
 		end
 
 		def send message
+			print  "[S] "
+			p message
 			@socket << message + eof?.first rescue nil
 		end
 
@@ -88,6 +92,12 @@ module OAC
 
 		def on_open
 			raise NotImplementedError
+		end
+
+		def handle_message message
+			print  "[R] "
+			p message
+			on_message message
 		end
 
 		def on_message
@@ -108,6 +118,12 @@ module OAC
 			dispatch OAC::Client::TakeControlRequest.new, networks, force, self
 		end
 
+		def execute_control networks, force = false
+			raise "NoStudio" if !@studio
+			@studio.clients << self 
+			dispatch OAC::Client::ExecuteControlRequest.new, networks, force, self
+		end
+
 		# network = nil  ==>  release control from all networks
 		def release_control networks, force = false
 			raise "NoStudio" if !@studio
@@ -123,17 +139,15 @@ module OAC
 
 
 		private
-		def on_take_control event, networks, caller, last_studio
+		def on_take_control event, networks, caller, old_acceptor
+		end
 
-			#@studio.clients << self
-
+		private
+		def on_execute_control event, networks, caller, last_studio
 		end
 
 		private
 		def on_release_control event, networks, caller, studio
-
-			#@studio.clients.delete self
-		
 		end
 		
 	end

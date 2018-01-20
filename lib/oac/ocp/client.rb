@@ -16,7 +16,7 @@ module OAC; module OCP
 
 		def on_open 
 			self << ident
-			if @server.network and @server.network.on_air == nil
+			if @server.network.on_air == @studio
 				self << "NET_CONTROL_AVAILABLE"
 			end
 			@myriad_id = @id
@@ -30,14 +30,16 @@ module OAC; module OCP
 				when "NET_CONTROL?"
 					# This is ambiguous. We need to work out who's
 					if @server.network.on_air
-						if @server.network.on_air == self
-							self << "NET_CONTROL MV4_" + @myriad_id
+						if @server.network.on_air == @studio
+							puts "sending available"
+							self << "NET_CONTROL_AVAILABLE"
+							#self << "NET_CONTROL MV4_" + @myriad_id
 						else
 							# Make Myriad happy because it thinks it's in control ;-)
-							self << "NET_CONTROL MV4_" + @server.network.on_air.id
+							self << "NET_CONTROL MV4_00000" # + @server.network.on_air.id
 						end
 					else
-						self << "NET_CONTROL_AVAILABLE"
+						#self << "NET_CONTROL_AVAILABLE"
 					end
 
 				# NET_CONTROL_LOGON MV4_[PC-NAME] [force],[PC-ID] [PC-NAME/MYRIAD NAME]
@@ -49,15 +51,15 @@ module OAC; module OCP
 
 					@studio.clients << self
 
-					take_control @server.network, force
-
 					# We're already on air!
 					if @server.network.on_air == @studio
 						send_on_air_response
+					else
+						#take_control @server.network, force
 					end
 
 				when "NET_CONTROL_LOGOFF"
-					release_control @networks, false
+					#release_control @networks, false
 					
 				when "SET"
 					# metadata update - we don't care if we're not on air.

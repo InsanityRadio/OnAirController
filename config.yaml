@@ -16,13 +16,14 @@ studios:
         - ::1
     type: NONE
     networks:
-        insanity: 1
+        insanity: 0
 
   - name: SU-1-1A
     description: Insanity Studio 1
     ip: 
-        - 10.32.0.20
-        - 134.219.88.20
+        - 127.0.0.1
+        # - 10.32.0.20
+        # - 134.219.88.20
     type: OAC::OCP
     macro_port: 6950
     networks:
@@ -33,7 +34,8 @@ studios:
     ip:
         - 10.32.0.116
         - 127.0.0.1
-        - 134.219.88.116
+        - 10.32.0.125
+        #- 134.219.88.116
     type: OAC::OCP
     macro_port: 6950
     networks:   
@@ -66,6 +68,7 @@ networks:
     release_control: none
     default: SU-1-1A
     switch:
+      - type: "OAC::Switch::DummySwitch"
       - type: "OAC::Switch::OCP"
 #      - type: "OAC::Switch::OnAirNode"
 #        host: 127.0.0.1

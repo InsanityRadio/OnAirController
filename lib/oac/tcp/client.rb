@@ -22,12 +22,18 @@ module OAC; module TCP
 			message = message.strip
 
 			# GIVE CONTROL OF insanity TO studio1
-			return unless message[0..15] == 'GIVE CONTROL OF '
+			if message[0..15] == 'GIVE CONTROL OF '
 
-			network_name, studio_id = message[16..-1].split(" TO ")
+				network_name, studio_id = message[16..-1].split(" TO ")
 
-			@studio = @controller.studios[studio_id]
-			dispatch OAC::Client::TakeControlRequest.new, [@server.network], true, @studio
+				@studio = @controller.studios[studio_id]
+				dispatch OAC::Client::TakeControlRequest.new, [@server.network], true, @studio
+
+			elsif message[0..6] == 'EXECUTE'
+
+				dispatch OAC::Client::ExecuteControlRequest.new, [@server.network], @server.network.acceptor
+
+			end
 
 		end
 
