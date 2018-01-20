@@ -15,8 +15,8 @@ module OAC
 
 			@ips = {}
 
-			load_networks
 			load_studios
+			load_networks
 			load_controllers
 
 		end

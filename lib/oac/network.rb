@@ -26,11 +26,9 @@ module OAC
 
 			#@acceptor = nil
 			#@on_air = nil
-			default = @config.get_temp("network-#{@id}-last", params["default"])]
+			default = @config.get_temp("network-#{@id}-last", params["default"])
 			puts "Default control = #{default}"
 			@acceptor = @on_air = controller.studios[default]
-
-			p @on_air
 
 		end
 
