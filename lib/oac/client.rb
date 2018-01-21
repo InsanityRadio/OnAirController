@@ -13,7 +13,7 @@ module OAC
 		include OAC::Helper::Dispatch
 
 		attr_reader :networks, :socket, :server, :controller
-		attr_accessor :id, :studio, :autokill
+		attr_accessor :id, :studio, :autokill, :buffer
 
 		@@BLOCK_SIZE = 4096
 
@@ -45,18 +45,10 @@ module OAC
 		end
 
 		def ip
-			Socket.unpack_sockaddr_in(@socket.getpeername)[1]
+			Socket.unpack_sockaddr_in(@socket.get_peername)[1]
 		end
 
 		def on_data
-
-			begin
-				loop do 
-					@buffer << @socket.read_nonblock(@@BLOCK_SIZE)
-				end
-			rescue Errno::EAGAIN
-			rescue EOFError
-			end
 
 			responses = []
 
@@ -80,7 +72,7 @@ module OAC
 		def send message
 			print  "[S] "
 			p message
-			@socket << message + eof?.first rescue nil
+			@socket.send_data message + eof?.first rescue nil
 		end
 
 		def disconnect

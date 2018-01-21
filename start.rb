@@ -2,23 +2,26 @@ $: << "./lib"
 require 'oac'
 require 'json'
 require 'httparty'
+require 'eventmachine'
 
 $threads = []
-controller = OAC::Controller.new OAC::Config.parse_yaml(File.read("config.yaml"))
 
-controller.add_listener do | event, args, caller |
+EM.run {
+	controller = OAC::Controller.new OAC::Config.parse_yaml(File.read("config.yaml"))
 
-	# puts "#{event.class.to_s}, #{caller}"
-	if event.is_a? OAC::Event::MetaEvent
+	controller.add_listener do | event, args, caller |
 
-		# send it up
-		json = args.current_item.to_json
+		# puts "#{event.class.to_s}, #{caller}"
+		if event.is_a? OAC::Event::MetaEvent
 
-		HTTParty.post("http://webapi.private/update.php", body: json, :headers => { 'Content-Type' => 'application/json' }).body
+			# send it up
+			json = args.current_item.to_json
+
+			HTTParty.post("http://webapi.private/update.php", body: json, :headers => { 'Content-Type' => 'application/json' }).body
+
+		end
 
 	end
-
-end
-
-controller.run!
-$threads.map(&:join)
+}
+#controller.run!
+#$threads.map(&:join)

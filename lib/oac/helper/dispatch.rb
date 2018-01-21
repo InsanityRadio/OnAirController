@@ -14,6 +14,7 @@ module OAC
 			end
 
 			def dispatch event, *args, caller
+
 				raise OAC::Error::InvalidEventError, "#{event} is not an Event" \
 					unless event.is_a? OAC::Event
 
