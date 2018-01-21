@@ -5,6 +5,7 @@ module OAC
 		autoload :Disconnected, 'oac/client/disconnected'
 
 		autoload :Request, 'oac/client/request'
+		autoload :OfferControlRequest, 'oac/client/offer_control_request'
 		autoload :TakeControlRequest, 'oac/client/take_control_request'
 		autoload :ExecuteControlRequest, 'oac/client/execute_control_request'
 		autoload :ReleaseControlRequest, 'oac/client/release_control_request'
@@ -28,6 +29,7 @@ module OAC
 
 			@studio = nil
 
+			@controller.add_listener OAC::Event::OfferControl, &method(:on_offer_control) if @controller
 			@controller.add_listener OAC::Event::TakeControl, &method(:on_take_control) if @controller
 			@controller.add_listener OAC::Event::ExecuteControl, &method(:on_execute_control) if @controller
 			@controller.add_listener OAC::Event::OffAir, &method(:on_release_control) if @controller
@@ -112,6 +114,13 @@ module OAC
 			dispatch OAC::Client::Disconnect.new, self
 		end
 
+		def offer_control networks, force = false 
+			valid_networks = networks.select { | n | n.acceptor.id == self.studio.id }
+			raise "Permission Denied" if networks.length != valid_networks.length and !force
+
+			dispatch OAC::Client::OfferControlRequest.new, networks, force, self
+		end
+
 		def take_control networks, force = false
 			raise "NoStudio" if !@studio
 			@studio.clients << self 
@@ -137,6 +146,10 @@ module OAC
 			dispatch OAC::Event::SongChange.new, metadata, @studio
 		end
 
+
+		private
+		def on_offer_control event, networks
+		end
 
 		private
 		def on_take_control event, networks, caller, old_acceptor

@@ -4,7 +4,7 @@ module OAC
 		include OAC::Helper::Dispatch
 
 		attr_reader :id, :name, :description, :callsign, :acceptor, :on_air
-		attr_reader :take_control_type, :release_control_type
+		attr_reader :take_control_type, :release_control_type, :offered
 
 		def initialize params = {}, controller
 
@@ -24,8 +24,8 @@ module OAC
 				end
 			end
 
-			#@acceptor = nil
-			#@on_air = nil
+			@offered = false 
+
 			default = @config.get_temp("network-#{@id}-last", params["default"])
 			puts "Default control = #{default}"
 			@acceptor = @on_air = controller.studios[default]
@@ -63,6 +63,11 @@ module OAC
 				else
 					raise OAC::Error::ConfigError, "Unrecognised control type #{@release_control_type}"
 			end
+		end
+
+		def offer_control
+			@offered = true
+			dispatch OAC::Event::OfferControl.new, [self]
 		end
 
 		# Take control of network

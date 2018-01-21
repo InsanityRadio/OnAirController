@@ -6,6 +6,7 @@ module OAC
 		autoload :TakeControl, 'oac/events/take_control'
 		autoload :ExecuteControl, 'oac/events/execute_control'
 		autoload :OffAir, 'oac/events/off_air'
+		autoload :OfferControl, 'oac/events/offer_control'
 
 		autoload :SongChange, 'oac/events/song_change'
 

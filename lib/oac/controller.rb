@@ -25,6 +25,15 @@ module OAC
 			@factory.close
 		end
 
+		def on_offer_control_request event, networks = []
+
+			networks = [networks] if networks.is_a? OAC::Network
+			networks.select do | network |
+				network.offer_control
+				true
+			end
+
+		end
 
 		def on_take_control_request event, networks = [], force, client
 
@@ -166,6 +175,7 @@ module OAC
 			#	unless object.class.included_modules.include? OAC::Helper::Dispatch
 
 			object.add_listener OAC::Client::Disconnect, &method(:on_disconnect)
+			object.add_listener OAC::Client::OfferControlRequest, &method(:on_offer_control_request)
 			object.add_listener OAC::Client::TakeControlRequest, &method(:on_take_control_request)
 			object.add_listener OAC::Client::ExecuteControlRequest, &method(:on_execute_control_request)
 			object.add_listener OAC::Client::ReleaseControlRequest, &method(:on_release_control_request)

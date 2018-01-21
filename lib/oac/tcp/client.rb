@@ -10,7 +10,7 @@ module OAC; module TCP
 		end
 
 		def ident
-			'THIS IS SOME BASIC PROTO'
+			'WOW SUCH PROTOCOL MANY PACKETS'
 		end
 
 		def on_open 
@@ -29,6 +29,10 @@ module OAC; module TCP
 				@studio = @controller.studios[studio_id]
 				dispatch OAC::Client::TakeControlRequest.new, [@server.network], true, @studio
 
+			elsif message[0..4] == 'OFFER'
+
+				dispatch OAC::Client::OfferControlRequest.new, [@server.network]
+
 			elsif message[0..6] == 'EXECUTE'
 
 				dispatch OAC::Client::ExecuteControlRequest.new, [@server.network], @server.network.acceptor
@@ -36,6 +40,31 @@ module OAC; module TCP
 			end
 
 		end
+
+		private
+		def on_offer_control event, networks
+			network_ids = networks.map {|n| n.id}.join(",")
+			self << "OFFERED CONTROL OF #{network_ids}"
+		end
+
+		private
+		def on_take_control event, networks, caller, old_acceptor
+			network_ids = networks.map {|n| n.id}.join(",")
+			self << "#{caller.id} ACCEPTED CONTROL OF #{network_ids}"
+		end
+
+		private
+		def on_execute_control event, networks, caller, last_studio
+			network_ids = networks.map {|n| n.id}.join(",")
+			self << "#{caller.id} EXECUTED CONTROL OF #{network_ids}"
+		end
+
+		private
+		def on_release_control event, networks, caller, studio
+			#network_ids = networks.map {|n| n.id}.join(",")
+			#self << "#{caller.id} RELEASED CONTROL OF #{network_ids}"
+		end
+		
 
 	end
 end; end
