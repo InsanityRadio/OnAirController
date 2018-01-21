@@ -16,15 +16,18 @@ module OAC; module OCP
 
 		def on_open 
 			self << ident
-			if @server.network.on_air == @studio
+			p [@server.network.on_air.id, @studio.id]
+			if @server.network.on_air.id == @studio.id
 				self << "NET_CONTROL_AVAILABLE"
 			end
+			@autokill = Time.now.to_i + 5
 			@myriad_id = @id
 		end
 
 		def on_message message
 
 			query = message.split(" ", 2)
+			@autokill = nil
 
 			case query[0]
 				when "NET_CONTROL?"

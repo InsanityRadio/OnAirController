@@ -12,7 +12,7 @@ module OAC
 		include OAC::Helper::Dispatch
 
 		attr_reader :networks, :socket, :server, :controller
-		attr_accessor :id, :studio
+		attr_accessor :id, :studio, :autokill
 
 		@@BLOCK_SIZE = 4096
 

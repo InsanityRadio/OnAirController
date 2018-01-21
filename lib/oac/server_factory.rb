@@ -77,6 +77,16 @@ module OAC
 				end
 			end
 
+			@sockets.each do | socket |
+				client = @clients.select { |s| s.socket == socket }[0]
+				next if !client or client.autokill == nil
+
+				if client.autokill < Time.now.to_i
+					puts "Auto-killing client to kill stuck/stale connection."
+					client.server.on_remove_client socket
+				end
+			end
+
 		end
 
 		def run!
