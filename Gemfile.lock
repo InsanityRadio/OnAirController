@@ -3,7 +3,11 @@ GEM
   specs:
     diff-lcs (1.2.5)
     dig_rb (1.0.1)
+    em-websocket (0.5.1)
+      eventmachine (>= 0.12.9)
+      http_parser.rb (~> 0.6.0)
     eventmachine (1.2.5)
+    http_parser.rb (0.6.0)
     httparty (0.15.6)
       multi_xml (>= 0.5.2)
     multi_xml (0.6.0)
@@ -27,6 +31,7 @@ PLATFORMS
 
 DEPENDENCIES
   dig_rb
+  em-websocket
   eventmachine
   httparty
   redis

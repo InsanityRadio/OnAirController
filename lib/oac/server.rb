@@ -27,8 +27,16 @@ module OAC
 		CLIENT = OAC::Client
 
 		def create_server host, port, &block
+
 			shim = ServerShim.clone
-			EventMachine::start_server(host, port, shim, &block)
+
+			EventMachine::start_server(host, port, shim) do | conn |
+				conn.server = self
+				client = self.on_new_client(conn)
+				@controller.register_client(client) if @controller
+				conn.client = client
+			end
+
 		end
 
 		def initialize controller = nil

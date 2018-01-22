@@ -15,13 +15,7 @@ module OAC
 
 			server = type.new @controller
 
-			server.create_server(host, port) do | conn |
-				conn.server = server
-				client = server.on_new_client(conn)
-				@controller.register_client(client) if @controller
-				conn.client = client
-			end
-
+			server.create_server(host, port) 
 			server
 
 		end

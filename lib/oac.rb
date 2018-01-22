@@ -16,8 +16,8 @@ module OAC
 
 	autoload :Switch, 'oac/switch'
 	autoload :TCP, 'oac/tcp'
+	autoload :WebSocket, 'oac/web_socket'
 
 	autoload :Studio, 'oac/studio'
-
 
 end
