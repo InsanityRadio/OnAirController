@@ -14,6 +14,9 @@ module OAC; module OCP
 				when "LOG CURRENTITEMS"
 
 					items = []
+					# Myriad uses windows-1252 charset. Make it UTF-8 to avoid buggering everything up
+					data = data.force_encoding("windows-1252").encode("UTF-8") rescue data
+
 					CSV.parse(data, :quote_char => "\x00").flatten.each do | len |
 						items << parse_log(deserialize(len))
 					end
