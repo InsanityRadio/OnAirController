@@ -40,7 +40,7 @@ module OAC; module OCP
 			kv = {}
 			xml = REXML::Document.new("<a #{data} />")
 			inject = proc { $1.to_i(16).chr }
-			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([0-9]+)\}/, &inject) }
+			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([A-F0-9]+)\}/, &inject) }
 
 			kv
 
