@@ -15,6 +15,9 @@ module OAC; module OCP
 				when "LOG CURRENTITEMS"
 
 					items = []
+					# Myriad uses windows-1252 charset. Make it UTF-8 to avoid buggering everything up
+					data = data.force_encoding("windows-1252").encode("UTF-8") rescue data
+
 					CSV.parse(data, :quote_char => "\x00").flatten.each do | len |
 						items << parse_log(deserialize(len))
 					end
@@ -37,7 +40,7 @@ module OAC; module OCP
 			kv = {}
 			xml = REXML::Document.new("<a #{data} />")
 			inject = proc { $1.to_i(16).chr }
-			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([0-9]+)\}/, &inject) }
+			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([A-F0-9]+)\}/, &inject) }
 
 			kv
 

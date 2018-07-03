@@ -33,8 +33,9 @@ studios:
   - name: SU-1-2A
     description: Insanity Studio 2
     ip:
-        #- 10.32.0.116
-        - 127.0.0.2
+        - 10.32.0.116
+        - 127.0.0.1
+        - 10.32.0.125
         #- 134.219.88.116
     type: OAC::OCP
     macro_port: 6950
@@ -46,10 +47,14 @@ controllers:
     network: insanity
     host: 0.0.0.0
     port: 6899
-#  - type: "OAC::OCP"
-#    network: insanity
-#    host: 0.0.0.0
-#    port: 6901
+  - type: "OAC::WebSocket"
+    network: insanity
+    host: 0.0.0.0
+    port: 6898
+  - type: "OAC::OCP"
+    network: insanity
+    host: 0.0.0.0
+    port: 6901
 
 networks:
 #  - name: insanity-xtra             ; UNIQUE machine readable network identifier
@@ -69,7 +74,7 @@ networks:
     default: SU-1-1A
     switch:
       - type: "OAC::Switch::DummySwitch"
-#      - type: "OAC::Switch::OCP"
+      - type: "OAC::Switch::OCP"
 #      - type: "OAC::Switch::OnAirNode"
 #        host: 127.0.0.1
 #        port: 9999
