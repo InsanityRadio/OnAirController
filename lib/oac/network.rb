@@ -29,6 +29,7 @@ module OAC
 			default = @config.get_temp("network-#{@id}-last", params["default"])
 			puts "Default control = #{default}"
 			@acceptor = @on_air = controller.studios[default]
+			@on_air.networks << self
 
 		end
 

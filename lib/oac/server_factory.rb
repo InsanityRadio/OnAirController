@@ -11,9 +11,9 @@ module OAC
 			@sockets = []
 		end
 
-		def create_server type, port, host = "127.0.0.1"
+		def create_server type, port, host = "127.0.0.1", config = nil
 
-			server = type.new @controller
+			server = type.new @controller, config
 
 			server.create_server(host, port) 
 			server

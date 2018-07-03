@@ -1,3 +1,8 @@
+require 'timeout'
+require 'digest'
+require 'json'
+require 'base64'
+
 module OAC; module TCP
 	class Client < OAC::Client
 
@@ -6,36 +11,128 @@ module OAC; module TCP
 		end
 
 		def eof?
-			["\n"]
+			["\0"]
 		end
 
 		def ident
-			'WOW SUCH PROTOCOL MANY PACKETS'
+			json_data = {
+				studios: @controller.studios.map { | _, s |
+					{
+						id: s.id,
+						name: s.description,
+						networks: s.networks.map { |n| n.id }
+					}
+				},
+				networks: @controller.networks.map { | _, s |
+					{
+						id: s.id,
+						name: s.name,
+						description: s.description,
+						studio: s.on_air != nil ? s.on_air.id : nil,
+						acceptor: s.acceptor != nil ? s.acceptor.id : nil,
+						offered: false
+					}
+				}
+			}.to_json
+			['hello', json_data]
 		end
 
 		def on_open 
-			self << ident
+			send_nonce
+			send_packet *ident
+		end
+
+		def send_nonce
+
+			@nonce = SecureRandom.hex(32)
+
+			send_packet "nonce", @nonce
+
+		end
+
+		def send_packet cmd, *args
+
+			packet = "%#{cmd}%#{args.join('%')}%"
+
+			# Yup, our server to client packets can be replayed in this direction. But not in the other. :-)
+			packet += Digest::SHA256.hexdigest(packet + secret_key)
+			self << (packet + "\0")
+
+		end
+
+		def secret_key
+			@studio.config['secret_key']
 		end
 
 		def on_message message
 
-			message = message.strip
+			#%nonce%cmd%arg%arg%signature
+
+			begin
+
+				parts = message.split("%")
+
+				signature = parts[-1]
+				parts = parts[0..-2]
+
+				calc_nonce = "#{ parts.join("%") }%#{ secret_key }"
+				calc_nonce = Digest::SHA256.hexdigest calc_nonce
+
+				raise "Bad nonce" if parts[0] != @nonce
+				raise "Bad HMAC" if signature != calc_nonce
+
+				receive_message *parts[1..-1]
+
+			rescue
+
+				p $!
+				p $!.backtrace
+
+			end
+			
+			send_nonce
+
+		end
+
+		def receive_message cmd, *args
 
 			# GIVE CONTROL OF insanity TO studio1
-			if message[0..15] == 'GIVE CONTROL OF '
+			if cmd == 'ACCEPT'
 
-				network_name, studio_id = message[16..-1].split(" TO ")
+				studio = @controller.studios[args[0]]
+				network = @controller.networks[args[1]]
+				raise "Invalid studio" if !studio
+				raise "Invalid network" if !network
 
-				@studio = @controller.studios[studio_id]
-				dispatch OAC::Client::TakeControlRequest.new, [@server.network], true, @studio
+				dispatch OAC::Client::TakeControlRequest.new, [network], true, studio
 
-			elsif message[0..4] == 'OFFER'
+			elsif cmd == 'OFFER'
 
-				dispatch OAC::Client::OfferControlRequest.new, [@server.network]
+				studio = @controller.studios[args[0]]
+				network = @controller.networks[args[1]]
+				raise "Invalid studio" if !studio
+				raise "Invalid network" if !network
 
-			elsif message[0..6] == 'EXECUTE'
+				dispatch OAC::Client::OfferControlRequest.new, [network]
 
-				dispatch OAC::Client::ExecuteControlRequest.new, [@server.network], @server.network.acceptor
+			elsif cmd == 'EXECUTE'
+
+				studio = @controller.studios[args[0]]
+				network = @controller.networks[args[1]]
+				raise "Invalid studio" if !studio
+				raise "Invalid network" if !network
+
+				dispatch OAC::Client::ExecuteControlRequest.new, [network], studio
+
+			elsif cmd == 'TAKE'
+
+				studio = @controller.studios[args[0]]
+				network = @controller.networks[args[1]]
+				raise "Invalid studio" if !studio
+				raise "Invalid network" if !network
+
+				dispatch OAC::Client::TakeControlRequest.new, [network], true, studio
+				dispatch OAC::Client::ExecuteControlRequest.new, [network], @studio
 
 			end
 
@@ -43,20 +140,21 @@ module OAC; module TCP
 
 		private
 		def on_offer_control event, networks
-			network_ids = networks.map {|n| n.id}.join(",")
-			self << "OFFERED CONTROL OF #{network_ids}"
+			network_ids = networks.map {|n| n.id}
+			send_packet 'OFFER', *network_ids
+			#self << "OFFERED CONTROL OF #{network_ids}"
 		end
 
 		private
 		def on_take_control event, networks, caller, old_acceptor
-			network_ids = networks.map {|n| n.id}.join(",")
-			self << "#{caller.id} ACCEPTED CONTROL OF #{network_ids}"
+			network_ids = networks.map {|n| n.id}
+			send_packet 'ACCEPT', caller.id, *network_ids
 		end
 
 		private
 		def on_execute_control event, networks, caller, last_studio
-			network_ids = networks.map {|n| n.id}.join(",")
-			self << "#{caller.id} EXECUTED CONTROL OF #{network_ids}"
+			network_ids = networks.map {|n| n.id}
+			send_packet 'EXECUTE', caller.id, *network_ids
 		end
 
 		private

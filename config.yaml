@@ -11,15 +11,17 @@ studios:
 #        insanity: 1                 ; network: output
 
   - name: system
+    hidden: true
     description: Admin Socket
     ip: 
-        - ::1
+        - '::1'
     type: NONE
+    secret_key: todo
     networks:
         insanity: 0
 
   - name: SU-1-1A
-    description: Insanity Studio 1
+    description: Studio 1A
     ip: 
         - 127.0.0.1
         # - 10.32.0.20
@@ -30,10 +32,10 @@ studios:
         insanity: 1
 
   - name: SU-1-2A
-    description: Insanity Studio 2
+    description: Studio 2A
     ip:
-        - 10.32.0.116
-        - 127.0.0.1
+        #- 10.32.0.116
+        - 127.0.0.2
         - 10.32.0.125
         #- 134.219.88.116
     type: OAC::OCP
@@ -44,7 +46,7 @@ studios:
 controllers:
   - type: "OAC::TCP"
     network: insanity
-    host: 0.0.0.0
+    host: '::1'
     port: 6899
   - type: "OAC::WebSocket"
     network: insanity
@@ -73,7 +75,7 @@ networks:
     default: SU-1-1A
     switch:
       - type: "OAC::Switch::DummySwitch"
-      - type: "OAC::Switch::OCP"
+#      - type: "OAC::Switch::OCP"
 #      - type: "OAC::Switch::OnAirNode"
 #        host: 127.0.0.1
 #        port: 9999

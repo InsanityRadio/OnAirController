@@ -102,6 +102,7 @@ module OAC
 			ip = client.ip
 
 			id = ip_to_id ip
+
 			return client.disconnect if id == nil
 			client.id = id
 
@@ -161,7 +162,7 @@ module OAC
 			@config.get("controllers").each do | controller |
 
 				type = Object.const_get(controller["type"])::Server
-				server = @factory.create_server(type, controller["port"], controller["host"])
+				server = @factory.create_server(type, controller["port"], controller["host"], controller)
 
 				# Some interfaces only support one network each
 				server.network = @networks[controller["network"]] if controller["network"]
