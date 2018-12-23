@@ -64,7 +64,9 @@ module OAC; module OCP
 					update = Metadata.parse message
 					return if !@metadata.nil? and @metadata[:reference] == update.current_item[:reference]
 
-					song_change update
+					if update[:type].to_i == 7
+						song_change update
+					end
 
 			end
 

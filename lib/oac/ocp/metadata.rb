@@ -54,6 +54,7 @@ module OAC; module OCP
 				:cart_id => logs["HDRef"],
 				:title => logs["ITitle"],
 				:artist => logs["AName1"],
+				:type => logs["IType"].to_i,
 				:start_time => (Time.parse(logs['EstStDtTm']) rescue nil),
 				:log_hour => (Time.strptime(logs['SchHour'] + '0000', '%Y%M%d%H%M%S') rescue nil)
 			}
