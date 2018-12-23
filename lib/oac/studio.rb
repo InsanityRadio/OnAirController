@@ -3,13 +3,14 @@ module OAC
 
 		include OAC::Helper::Dispatch
 
-		attr_reader :networks, :socket, :server, :controller
+		attr_reader :networks, :socket, :server, :controller, :description
 		attr_accessor :id, :config, :clients
 
 		def initialize config
 
 			@config = config
 			@id = config['name']
+			@description = config['description']
 			@networks = []
 
 			# Keeps track of client connections FROM THE STUDIO. 

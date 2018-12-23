@@ -22,7 +22,7 @@ module OAC
 
 		end
 
-		attr_reader :clients, :socket, :controller
+		attr_reader :clients, :socket, :controller, :config
 
 		CLIENT = OAC::Client
 
@@ -39,10 +39,11 @@ module OAC
 
 		end
 
-		def initialize controller = nil
+		def initialize controller = nil, config = nil 
 			@clients = []
 			@changed = lambda { }
 			@controller = controller
+			@config = config
 		end
 
 		def close

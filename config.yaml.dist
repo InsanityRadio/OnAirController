@@ -15,6 +15,7 @@ studios:
     ip: 
         - ::1
     type: NONE
+    secret_key: todo
     networks:
         insanity: 0
 
