@@ -16,7 +16,6 @@ end
 
 CONFIG_CONTROLLERS = <<end
 controllers:
-controllers:
   - type: Fake
     network: radio1
     host: 127.0.0.1
@@ -102,7 +101,7 @@ describe OAC::Controller do
 			it "checks if it can take control" do
 				c = Fake::Client.new
 				allow(@controller.networks['yes']).to receive(:take_control)
-				expect(@controller.networks['yes']).to receive(:id)
+				allow(@controller.networks['yes']).to receive(:id)
 				expect(@controller.networks['yes']).to receive(:should_take_control).with(c, false)
 
 				@controller.on_take_control_request nil, [@controller.networks['yes']], false, c
@@ -156,6 +155,7 @@ describe OAC::Controller do
 				allow(c).to receive(:id).and_return("STUDIO-69")
 
 				expect(c).to receive(:id=).with("STUDIO-69")
+				expect(c).to receive(:config=).with(config.get('studios')[0])
 
 
 				@controller.register_client c

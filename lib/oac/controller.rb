@@ -3,19 +3,20 @@ module OAC
 
 		include OAC::Helper::Dispatch
 
-		attr_reader :networks, :clients, :factory
+		attr_reader :networks, :clients, :factory, :studios, :config
 
 		def initialize config
 
 			@config = config
 			@clients = {}
 			@networks = {}
+			@studios = {}
 			@factory = ServerFactory.new self
 
 			@ips = {}
 
-			load_networks
 			load_studios
+			load_networks
 			load_controllers
 
 		end
@@ -24,22 +25,45 @@ module OAC
 			@factory.close
 		end
 
-
-		# Returns a list of networks we've taken control of
-		def on_take_control_request event, networks = [], force, client
+		def on_offer_control_request event, networks = []
 
 			networks = [networks] if networks.is_a? OAC::Network
 			networks.select do | network |
-				if !network.should_take_control(client, force)
-					next false 
-				end
-				network.take_control client
+				network.offer_control
 				true
 			end
 
 		end
 
-		def on_release_control_request event, networks = [], force, client
+		def on_take_control_request event, networks = [], force, client
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
+
+			networks = [networks] if networks.is_a? OAC::Network
+			networks.select do | network |
+				if !network.should_take_control(studio, force)
+					next false 
+				end
+				network.take_control studio
+				true
+			end
+
+		end
+
+		def on_execute_control_request event, networks = [], client
+
+			studio = client.is_a?(OAC::Client) ? client.studio : client
+			networks = [networks] if networks.is_a? OAC::Network
+
+			networks.select do | network |
+				next false if network.acceptor != studio
+				network.execute_control studio
+				true
+			end
+
+		end
+
+		def on_release_control_request event, networks = [], force, client_or_studio
 
 			networks = [networks] if networks.is_a? OAC::Network
 
@@ -47,8 +71,8 @@ module OAC
 			networks = @networks.map { | a, b | b } if networks == nil
 
 			networks.select do | network |
-				next false unless network.should_release_control(client, force)
-				network.release_control client
+				next false unless network.should_release_control(client_or_studio, force)
+				network.release_control client_or_studio
 				true
 			end
 
@@ -65,6 +89,7 @@ module OAC
 
 		def on_disconnect event, client
 			@clients[client.id] = OAC::Client::Disconnected
+			client.studio.clients.delete(client) if client.studio
 		end
 
 		def register_network network 
@@ -77,21 +102,19 @@ module OAC
 			ip = client.ip
 
 			id = ip_to_id ip
+
 			return client.disconnect if id == nil
 			client.id = id
+
+			studio = @studios[id]
+			raise "Studio does not exist" if !studio
+
+			client.studio = studio
 
 			client.on_open
 			listen_to client
 
-			old_client = @clients[client.id]
-
 			# Clean up the previous person with this client slot
-			if old_client != OAC::Client::Disconnected
-				old_client.networks.each { | n | n.take_control client }
-			end
-			old_client.disconnect
-
-			@clients[client.id] = client
 
 		end
 
@@ -106,7 +129,7 @@ module OAC
 
 			@config.get("networks").each do | settings |
 
-				network = OAC::Network.new(settings)
+				network = OAC::Network.new(settings, self)
 				id = settings["name"]
 				@networks[id] = network
 				listen_to network
@@ -127,6 +150,9 @@ module OAC
 					@ips[ip] = id
 				end
 
+				studio = OAC::Studio.new studio
+				@studios[id] = studio
+
 			end
 		end
 
@@ -136,7 +162,7 @@ module OAC
 			@config.get("controllers").each do | controller |
 
 				type = Object.const_get(controller["type"])::Server
-				server = @factory.create_server(type, controller["port"], controller["host"])
+				server = @factory.create_server(type, controller["port"], controller["host"], controller)
 
 				# Some interfaces only support one network each
 				server.network = @networks[controller["network"]] if controller["network"]
@@ -150,7 +176,9 @@ module OAC
 			#	unless object.class.included_modules.include? OAC::Helper::Dispatch
 
 			object.add_listener OAC::Client::Disconnect, &method(:on_disconnect)
+			object.add_listener OAC::Client::OfferControlRequest, &method(:on_offer_control_request)
 			object.add_listener OAC::Client::TakeControlRequest, &method(:on_take_control_request)
+			object.add_listener OAC::Client::ExecuteControlRequest, &method(:on_execute_control_request)
 			object.add_listener OAC::Client::ReleaseControlRequest, &method(:on_release_control_request)
 
 			object.add_listener OAC::Event::ControlEvent, &method(:on_control_event)

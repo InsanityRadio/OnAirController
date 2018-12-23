@@ -14,5 +14,10 @@ module OAC
 	autoload :ServerFactory, 'oac/server_factory'
 	autoload :OCP, 'oac/ocp'
 
+	autoload :Switch, 'oac/switch'
+	autoload :TCP, 'oac/tcp'
+	autoload :WebSocket, 'oac/web_socket'
+
+	autoload :Studio, 'oac/studio'
 
 end

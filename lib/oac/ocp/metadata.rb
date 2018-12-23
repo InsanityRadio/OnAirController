@@ -1,5 +1,6 @@
 require 'csv'
 require 'rexml/document'
+require 'time'
 
 module OAC; module OCP
 	class Metadata < OAC::Metadata
@@ -39,21 +40,24 @@ module OAC; module OCP
 			kv = {}
 			xml = REXML::Document.new("<a #{data} />")
 			inject = proc { $1.to_i(16).chr }
-			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([0-9]+)\}/, &inject) }
+			xml.root.attributes.each { | a, b | kv[a] = b.gsub(/\{([A-F0-9]+)\}/, &inject) }
 
 			kv
 
 		end
 
-		# 
 		def self.parse_log logs
 
 			{
 				:reference => logs["Ref"],
-				:playout_id => (logs["ExtSchRef"] or "C#{logs["HDRef"]}"),
+				:playout_id => logs["ExtSchRef"],
 				:cart_id => logs["HDRef"],
 				:title => logs["ITitle"],
-				:artist => logs["AName1"] }
+				:artist => logs["AName1"],
+				:type => logs["IType"].to_i,
+				:start_time => (Time.parse(logs['EstStDtTm']) rescue nil),
+				:log_hour => (Time.strptime(logs['SchHour'] + '0000', '%Y%M%d%H%M%S') rescue nil)
+			}
 
 		end
 
