@@ -10,26 +10,47 @@ studios:
 #                                    ;   (there is limited network support at this moment in time)
 #        insanity: 1                 ; network: output
 
-  - name: INS-STU1-PLYT
+  - name: system
+    description: Admin Socket
+    ip: 
+        - ::1
+    type: NONE
+    secret_key: todo
+    networks:
+        insanity: 0
+
+  - name: SU-1-1A
     description: Insanity Studio 1
     ip: 
-        - 10.32.0.20
-        - 134.219.88.20
+        - 127.0.0.1
+        # - 10.32.0.20
+        # - 134.219.88.20
     type: OAC::OCP
+    macro_port: 6950
     networks:
         insanity: 1
 
-  - name: INS-STU2-PLYT
+  - name: SU-1-2A
     description: Insanity Studio 2
     ip:
-        - 127.0.0.1
         - 10.32.0.116
-        - 134.219.88.116
+        - 127.0.0.1
+        - 10.32.0.125
+        #- 134.219.88.116
     type: OAC::OCP
+    macro_port: 6950
     networks:   
         insanity: 2
 
 controllers:
+  - type: "OAC::TCP"
+    network: insanity
+    host: 0.0.0.0
+    port: 6899
+  - type: "OAC::WebSocket"
+    network: insanity
+    host: 0.0.0.0
+    port: 6898
   - type: "OAC::OCP"
     network: insanity
     host: 0.0.0.0
@@ -48,11 +69,32 @@ networks:
   - name: insanity
     description: Insanity Radio
     callsign: Insanity Radio 103.2FM
-    take_control: always
-    release_control: always
+    take_control: force
+    release_control: none
+    default: SU-1-1A
+    switch:
+      - type: "OAC::Switch::DummySwitch"
+      - type: "OAC::Switch::OCP"
+#      - type: "OAC::Switch::OnAirNode"
+#        host: 127.0.0.1
+#        port: 9999
+#        secret_key: todo
+#        inputs:
+#            0: ~
+#            1: INS-STU1-PLYT
+#            2: INS-STU2-PLYT
+#            3: ~
+#      - type: "OAC::Switch::OnAirNode"
+#        host: 10.32.0.225
+#        port: 9999
+#        secret_key: todo
+#        inputs:
+#            0: ~
+#            1: INS-STU1-PLYT
+#            2: INS-STU2-PLYT
+#            3: ~
 
 
 settings:
     handover_tail: 5                 # the "tail", if supported by hardware outs. set to 0 to disable
-
 

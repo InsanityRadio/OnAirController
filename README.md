@@ -2,7 +2,7 @@
 
 A stupidly simple on-air controller (and coincidentally a metadata source) written in Ruby.
 
-This controller theoretically supports multiple playout systems (if you can code it!). There is currently support for Myriad, as it's the only one we have access to. 
+This controller theoretically supports multiple playout systems (if you can code it!). There is currently support for Myriad 5 via the OCP 4/SE connection.
 
 OnAirController can now receive now playing metadata. 
 
@@ -20,10 +20,5 @@ This software is one component of Metal, part of Insanity Radio's [technical mas
 
 One goal of this software is to allow the "ON AIR" status that's displayed on the playout machine to correspond to the studio that's actually on air - including hardware. This hasn't been implemented yet, but OAC in its current state should theoretically support this.
 
-## Gotchas
-
-Myriad won't keep a connection to the OAC open unless it is trying to go on air. Myriad's TCP/IP protocol can work around this, but this hasn't been implemented yet.
-
-Be wary if you're using Raspberry Pi GPIO pins here - you should definitely use opto-isolated circuitry, especially if (like us, there are some huge lighting transformers downstairs) your ground is noisy. Make sure that you (somehow) persist GPOs in case the software crashes, as this is very likely in the current state. 
-
+Be wary if you're using Raspberry Pi GPIO pins here - you should definitely use opto-isolated circuitry, especially if (like us, there are some huge lighting transformers downstairs) your ground is noisy. Make sure that you (somehow) persist GPOs in case the software crashes/restarts.
 

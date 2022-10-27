@@ -15,41 +15,54 @@ module OAC; module OCP
 
 		def on_open 
 			self << ident
-			if @server.network and @server.network.on_air == nil
+			if !@server.network.on_air or @server.network.on_air.id == @studio.id
 				self << "NET_CONTROL_AVAILABLE"
 			end
+			@autokill = Time.now.to_i + 5
 			@myriad_id = @id
 		end
 
 		def on_message message
 
 			query = message.split(" ", 2)
+			@autokill = nil
 
 			case query[0]
 				when "NET_CONTROL?"
 					# This is ambiguous. We need to work out who's
 					if @server.network.on_air
-						if @server.network.on_air == self
-							self << "NET_CONTROL MV4_" + @myriad_id
+						if @server.network.on_air == @studio
+							puts "sending available"
+							self << "NET_CONTROL_AVAILABLE"
 						else
-							# Make Myriad happy because it thinks it's in control ;-)
-							self << "NET_CONTROL MV4_" + @server.network.on_air.id
+							self << "NET_CONTROL MV4_00000" 
 						end
 					else
 						self << "NET_CONTROL_AVAILABLE"
 					end
 
-				# NET_CONTROL_LOGON MV4_[PC-NAME] [force],[PC-ID] [PC-NAME/MYRIAD NAME]
 				when "NET_CONTROL_LOGON"
 					q = query[1].split(" ")
 					@myriad_id = query[0]
-					#force = query[1].split(",") == "2"
+
 					force = true
-					take_control @server.network, force
+
+					@studio.clients << self
+
+					# We're already on air!
+					if @server.network.on_air == @studio
+						send_on_air_response
+						return
+					else
+						take_control @server.network, force
+					end
 
 				when "NET_CONTROL_LOGOFF"
-					release_control @networks, false
+					# !!! BAD IDEA !!!
 					
+					release_control @networks, false
+					self << "NET_CONTROL_AVAILABLE"
+					return
 				when "SET"
 					# metadata update - we don't care if we're not on air.
 					return if !@networks.length
@@ -57,16 +70,30 @@ module OAC; module OCP
 					update = Metadata.parse message
 					return if !@metadata.nil? and @metadata[:reference] == update.current_item[:reference]
 
-					song_change update
+					if update[:type].to_i == 7
+						song_change update
+					else
+						cart_change update
+					end
+
+				else
+					puts "Unknown OCP message:"
+					p message
 
 			end
 
+			@server.forward message
+
+		end
+
+		def send_on_air_response
+			self << "NET_CONTROL_START"
+			self << "GET_INFORMATION"
 		end
 
 		private
 		def on_take_control *args
-			self << "NET_CONTROL_START"
-			self << "GET_INFORMATION"
+			send_on_air_response
 			super *args
 		end
 

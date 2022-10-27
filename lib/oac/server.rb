@@ -3,49 +3,54 @@ require 'socket'
 module OAC
 	class Server
 
-		attr_reader :clients, :socket, :controller
+		module ServerShim
 
-		@@CLIENT = OAC::Client
+			attr_accessor :client, :server
+			def receive_data data 
+				@client.buffer << data
+				begin
+					@client.on_data
+				rescue
+					pp $!
+					pp $!.backtrace
+				end
+			end
 
-		def initialize controller = nil
-			@socket = nil
+			def unbind
+				@server.on_remove_client(self)
+			end
+
+		end
+
+		attr_reader :clients, :socket, :controller, :config
+
+		CLIENT = OAC::Client
+
+		def create_server host, port, &block
+
+			shim = ServerShim.clone
+
+			EventMachine::start_server(host, port, shim) do | conn |
+				conn.server = self
+				client = self.on_new_client(conn)
+				@controller.register_client(client) if @controller
+				conn.client = client
+			end
+
+		end
+
+		def initialize controller = nil, config = nil 
 			@clients = []
 			@changed = lambda { }
 			@controller = controller
-		end
-
-		def listen port, host = "127.0.0.1"
-			raise "I'm already listening" if @socket
-			begin
-				@socket = TCPServer.new host, port
-			rescue
-				raise OAC::Exceptions::BindError, $!.to_s
-			end
-			@changed.call
-		end
-
-		def sockets
-			d, @clients = @clients.partition { | c | c.socket == socket }
-			d.map(&:on_disconnect)
-
-			@clients.map { | c | c.socket } + [@socket]
+			@config = config
 		end
 
 		def close
-			raise OAC::Exceptions::NoServer unless @socket
-			@socket.close
-		end
-
-		def accept
-			on_new_client @socket.accept
-		end
-
-		def changed &block
-			@changed = block
 		end
 
 		def on_new_client socket
-			@clients << (client = @@CLIENT.new(socket, self))
+			@clients << (client = self.class::CLIENT.new(socket, self))
 			@changed.call
 			client
 		end

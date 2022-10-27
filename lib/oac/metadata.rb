@@ -1,7 +1,7 @@
 module OAC
 	class Metadata
 
-		attr_accessor :current_item, :next_item
+		attr_accessor :current_item, :next_item, :all
 
 		def [] a
 			return @current_item[a]
