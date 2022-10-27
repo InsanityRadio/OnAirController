@@ -77,6 +77,7 @@ module OAC
 			old_acceptor = @acceptor
 			@acceptor = studio
 
+			puts "CONTROL CHANGE: " + studio.id + ": " + self.id
 			dispatch OAC::Event::TakeControl.new, [self], studio, old_acceptor
 
 			old_acceptor.on_release_control nil, [self], nil if old_acceptor != nil

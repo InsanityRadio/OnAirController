@@ -14,6 +14,7 @@ module OAC
 			def switch_control client, previous 
 
 				puts "hello"
+				puts client.id
 				id = @config['inputs'].key client.id
 
 				raise "Invalid ID" if id == nil

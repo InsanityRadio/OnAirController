@@ -24,6 +24,10 @@ module OAC
 			network_names = networks.map { |n| n.id }
 			puts "#{@id} is taking control of #{network_names}"
 
+			@networks = (@networks + networks).uniq
+
+			networks.each{|n| n.execute_control(self) if n.on_air != self }
+
 		end
 
 		def on_execute_control event, networks, caller, last_studio

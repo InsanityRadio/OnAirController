@@ -8,6 +8,7 @@ module OAC
 		autoload :OffAir, 'oac/events/off_air'
 		autoload :OfferControl, 'oac/events/offer_control'
 
+		autoload :CartChange, 'oac/events/cart_change'
 		autoload :SongChange, 'oac/events/song_change'
 
 		attr_accessor :args, :caller

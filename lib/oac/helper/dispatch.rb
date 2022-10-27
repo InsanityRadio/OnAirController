@@ -24,6 +24,7 @@ module OAC
 				return if !defined? @listeners
 
 				@listeners.each do | l |
+					next unless l
 					l[1].call(event, *args, caller) if l[0].nil? or event.class.ancestors.include?(l[0])
 				end
 

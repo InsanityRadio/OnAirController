@@ -18,14 +18,16 @@ module OAC
 
 			def switch_control_safe studio, previous
 
-				begin
-					switch_control studio, previous
-				rescue
-					puts "!!!!!!!"
-					puts "FAILED TO SWITCH #{self}"
-					p $!
-					p $!.backtrace
-					puts "!!!!!!!"
+				Thread.new do
+					begin
+						switch_control studio, previous
+					rescue
+						puts "!!!!!!!"
+						puts "FAILED TO SWITCH #{self}"
+						p $!
+						p $!.backtrace
+						puts "!!!!!!!"
+					end
 				end
 
 			end

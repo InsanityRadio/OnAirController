@@ -15,8 +15,7 @@ module OAC; module OCP
 
 		def on_open 
 			self << ident
-			p [@server.network.on_air.id, @studio.id]
-			if @server.network.on_air.id == @studio.id
+			if !@server.network.on_air or @server.network.on_air.id == @studio.id
 				self << "NET_CONTROL_AVAILABLE"
 			end
 			@autokill = Time.now.to_i + 5
@@ -38,25 +37,32 @@ module OAC; module OCP
 						else
 							self << "NET_CONTROL MV4_00000" 
 						end
+					else
+						self << "NET_CONTROL_AVAILABLE"
 					end
 
 				when "NET_CONTROL_LOGON"
 					q = query[1].split(" ")
 					@myriad_id = query[0]
 
-					force = false
+					force = true
 
 					@studio.clients << self
 
 					# We're already on air!
 					if @server.network.on_air == @studio
 						send_on_air_response
+						return
+					else
+						take_control @server.network, force
 					end
 
 				when "NET_CONTROL_LOGOFF"
 					# !!! BAD IDEA !!!
-					#release_control @networks, false
-
+					
+					release_control @networks, false
+					self << "NET_CONTROL_AVAILABLE"
+					return
 				when "SET"
 					# metadata update - we don't care if we're not on air.
 					return if !@networks.length
@@ -66,9 +72,17 @@ module OAC; module OCP
 
 					if update[:type].to_i == 7
 						song_change update
+					else
+						cart_change update
 					end
 
+				else
+					puts "Unknown OCP message:"
+					p message
+
 			end
+
+			@server.forward message
 
 		end
 

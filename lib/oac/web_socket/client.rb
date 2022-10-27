@@ -26,8 +26,12 @@ module OAC; module WebSocket
 
 				network_name, studio_id = message[16..-1].split(" TO ")
 
-				@studio = @controller.studios[studio_id]
-				dispatch OAC::Client::TakeControlRequest.new, [@server.network], true, @studio
+                                studio = @controller.studios[studio_id]
+                                network = @controller.networks[network_name]
+                                raise "Invalid studio" if !studio
+                                raise "Invalid network" if !network
+
+				dispatch OAC::Client::TakeControlRequest.new, [network], true, studio
 
 			elsif message[0..4] == 'OFFER'
 

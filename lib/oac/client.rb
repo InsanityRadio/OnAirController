@@ -132,6 +132,12 @@ module OAC
 			dispatch OAC::Client::ReleaseControlRequest.new, networks, force, self
 		end
 
+		def cart_change metadata
+			@metadata = metadata
+			@current_reference = metadata[:current_reference]
+			dispatch OAC::Event::CartChange.new, metadata, @studio
+		end
+
 		def song_change metadata
 			@metadata = metadata
 			@current_reference = metadata[:current_reference]
